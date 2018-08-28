@@ -1,0 +1,11 @@
+{
+  "name":"Jack",
+  "password":"1234",
+  "Target carbs":"400",
+  "Target protein":"200",
+  "Target fat": 20,
+  "Meal Plan":[{"food a":[40,50,20]},{"food b":[10,40,20]}]
+}
+
+User input target carbs, protein and fat
+User input food, along with protein, carbs and fat
