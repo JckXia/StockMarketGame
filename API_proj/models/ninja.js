@@ -27,7 +27,11 @@ const NinjaSchema=new Schema({
   password:{
      type:String,
      required:[true,'Pass word is required']
+  },
+  stocks_purchased:{
+    type:Array
   }
+
   //Add in geo location
 });
 

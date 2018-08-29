@@ -8,10 +8,100 @@ var MongoClient = require('mongodb').MongoClient;
 const jwt=require('jsonwebtoken');
 const passport=require('passport');
 require('../config/passport')(passport);
+var request=require('request');
+
+ //BFK2DZWUB5348EUX
+
+ //https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=YAHOO&apikey=BFK2DZWUB5348EUX
+ function getStringDate(aDate,Yesterday){
+       var dd = aDate;
+       var yy = dd.getYear();
+       var mm = dd.getMonth() + 1;
+       var hour=dd.getHours();
+       var minute=dd.getMinutes();
+
+       //We want the previous day's closing cost
+        if(Yesterday){
+          hour=15;
+          minute=59;
+        }
+       dd = dd.getDate()-Yesterday;
+       if (yy < 2000) { yy += 1900; }
+       if (mm < 10) { mm = "0" + mm; }
+       if (dd < 10) { dd = "0" + dd; }
+       var rs = yy + "-" + mm + "-" + dd+" "+hour+":"+minute+":00";
+       return rs;
+   }
+
+function OHLC (data){
+
+  var res=0;
+
+  for(var key in data){
+     if(key!=='5. volume'){
+     res+= parseFloat(data[key]);
+   }
+  }
+  res=res/4;
+  return res;
+}
 
 
-// get a list of ninjas from the db
+function AlphaVantage(){
+  var current;
+
+ return new Promise( function(resolve,reject){
+  request.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&outputsize=full&interval=1min&apikey=BFK2DZWUB5348EUX', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+
+      let data=JSON.parse(body);
+      var LastRefresh=data['Meta Data']['3. Last Refreshed'];
+    resolve(OHLC(data["Time Series (1min)"][LastRefresh]));
+      //console.log(data["Time Series (1min)"][LastRefresh]); // Print the google web page.
+
+    }else{
+      reject(error);
+    }
+  });
+});
+
+
+}
+
+async function APIWrap(){
+  let res=await AlphaVantage();
+  //console.log(res);
+ return res;
+}
+
+function AsyncStockHelper(stocks,res){
+  var date=new Date();
+  var today=getStringDate(date,0);
+  var Yesterday=getStringDate(date,1);
+  //console.log(today);
+//  console.log(Yesterday);
+  for(var i=0;i<stocks.length;i++){
+
+  //console.log(stocks[i].label);
+  }
+ stocks.forEach(function(item,i){
+   APIWrap().then(function(t){
+     stocks[0].currentCost=t;
+   });
+ });
+
+
+  //OHLC average OPEN+HIGH+LOW+CLOSE
+  //console.log(stocks[0].currentCost);
+
+
+
+}
 router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)=>{
+  //This block is part of the calling api iwith node.js business
+
+  AsyncStockHelper(req.user.stocks_purchased,res);
+//  console.log(req.user.stocks_purchased);
   res.json({user:req.user})
 });
 
@@ -62,7 +152,7 @@ router.post('/ninjas/register', function(req, res){
             res.send({success:0,msg:'User already exists'});
 
           } else{
-            console.log("negative");
+
 
         req.body.password=passwordHash.generate(req.body.password);
         console.log(req.body.password);
