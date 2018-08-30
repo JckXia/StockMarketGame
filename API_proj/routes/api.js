@@ -57,9 +57,11 @@ function AlphaVantage(stockSymbol){
 
       let data=JSON.parse(body);
       var LastRefresh=data['Meta Data']['3. Last Refreshed'];
-      var YesterdayData=data['Time Series (1min)'][Yesterday];
+      var YesterdayData=OHLC(data['Time Series (1min)'][Yesterday]);
+      var latestData=OHLC(data['Time Series (1min)'][LastRefresh]);
       console.log(YesterdayData);
-    resolve(OHLC(data["Time Series (1min)"][LastRefresh]));
+
+    resolve({"current":latestData,"yesterday":YesterdayData});
     }else{
       reject(error);
     }
@@ -89,11 +91,12 @@ var stocks=user.stocks_purchased;
 
    APIWrap(item.label).then(function(stockData){
          pending--;
-     stocks[i].currentCost=stockData;
+     stocks[i].currentCost=stockData.current;
+     stocks[i].YesterdayCost=stockData.yesterday;
      if(pending==0){
-      // console.log('OK');
+       //When there is no more in the array
        res.send(user);
-      // console.log(user);
+
      }
    });
  });
@@ -113,6 +116,29 @@ router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)
   //res.json({user:req.user})
 });
 
+router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),function(req,res){
+ Ninja.findOne({name:req.body.name},function(err,user){
+    if(err) throw err;
+    if(user){
+      APIWrap(req.body.stock_symbol).then(function(data){
+
+        var newStock={
+          "label":req.body.stock_symbol,
+          "currentCost":data.current,
+          "YesterdayCost":data.yesterday,
+          "NumbersBought":req.body.quantity
+        };
+        user.stocks_purchased.push(newStock);
+        console.log(user.stocks_purchased);
+
+      });
+        res.send(user);
+    // console. log(user);
+
+    }
+  });
+  //res.send('Alright');
+});
 
 
 
