@@ -47,18 +47,19 @@ function OHLC (data){
 }
 
 
-function AlphaVantage(){
+function AlphaVantage(stockSymbol){
   var current;
-
+  var date=new Date();
+   var Yesterday=getStringDate(date,1);
  return new Promise( function(resolve,reject){
-  request.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&outputsize=full&interval=1min&apikey=BFK2DZWUB5348EUX', function (error, response, body) {
+  request.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+stockSymbol+'&outputsize=full&interval=1min&apikey=BFK2DZWUB5348EUX', function (error, response, body) {
     if (!error && response.statusCode == 200) {
 
       let data=JSON.parse(body);
       var LastRefresh=data['Meta Data']['3. Last Refreshed'];
+      var YesterdayData=data['Time Series (1min)'][Yesterday];
+      console.log(YesterdayData);
     resolve(OHLC(data["Time Series (1min)"][LastRefresh]));
-      //console.log(data["Time Series (1min)"][LastRefresh]); // Print the google web page.
-
     }else{
       reject(error);
     }
@@ -68,25 +69,32 @@ function AlphaVantage(){
 
 }
 
-async function APIWrap(){
-  let res=await AlphaVantage();
-  //console.log(res);
+async function APIWrap(stockSymbol){
+  let res=await AlphaVantage(stockSymbol);
  return res;
 }
 
-function AsyncStockHelper(stocks,res){
+function AsyncStockHelper(user,res){
   var date=new Date();
   var today=getStringDate(date,0);
   var Yesterday=getStringDate(date,1);
   //console.log(today);
 //  console.log(Yesterday);
-  for(var i=0;i<stocks.length;i++){
-
-  //console.log(stocks[i].label);
-  }
+var stocks=user.stocks_purchased;
+     var pending=stocks.length;
  stocks.forEach(function(item,i){
-   APIWrap().then(function(t){
-     stocks[0].currentCost=t;
+
+
+      //console.log(item.label);
+
+   APIWrap(item.label).then(function(stockData){
+         pending--;
+     stocks[i].currentCost=stockData;
+     if(pending==0){
+      // console.log('OK');
+       res.send(user);
+      // console.log(user);
+     }
    });
  });
 
@@ -100,9 +108,9 @@ function AsyncStockHelper(stocks,res){
 router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)=>{
   //This block is part of the calling api iwith node.js business
 
-  AsyncStockHelper(req.user.stocks_purchased,res);
+  AsyncStockHelper(req.user,res);
 //  console.log(req.user.stocks_purchased);
-  res.json({user:req.user})
+  //res.json({user:req.user})
 });
 
 
