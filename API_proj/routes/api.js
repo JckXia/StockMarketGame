@@ -56,10 +56,10 @@ function AlphaVantage(stockSymbol){
     if (!error && response.statusCode == 200) {
 
       let data=JSON.parse(body);
+
       var LastRefresh=data['Meta Data']['3. Last Refreshed'];
       var YesterdayData=OHLC(data['Time Series (1min)'][Yesterday]);
       var latestData=OHLC(data['Time Series (1min)'][LastRefresh]);
-      console.log(YesterdayData);
 
     resolve({"current":latestData,"yesterday":YesterdayData});
     }else{
@@ -77,24 +77,42 @@ async function APIWrap(stockSymbol){
 }
 
 function AsyncStockHelper(user,res){
+
   var date=new Date();
   var today=getStringDate(date,0);
   var Yesterday=getStringDate(date,1);
-  //console.log(today);
-//  console.log(Yesterday);
+
+
 var stocks=user.stocks_purchased;
      var pending=stocks.length;
+
  stocks.forEach(function(item,i){
 
-
-      //console.log(item.label);
-
    APIWrap(item.label).then(function(stockData){
+
          pending--;
+
      stocks[i].currentCost=stockData.current;
      stocks[i].YesterdayCost=stockData.yesterday;
+
+
+  var latest='stocks_purchased.'+i+'.currentCost';
+  var old='stocks_purchased.'+i+'.yesterdayCost';
+  console.log(latest);
+
+     Ninja.update(
+       {_id:user._id},
+       {"$set":{'stocks_purchased.$[i].currentCost':stockData.current,'stocks_purchased.$[i].YesterdayCost':stockData.yesterday}},
+       {arrayFilters: [{"i.label": item.label}]}
+     ).then(function(user){
+
+     });
+
      if(pending==0){
+
+
        //When there is no more in the array
+
        res.send(user);
 
      }
@@ -120,18 +138,7 @@ router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),functio
  Ninja.findOne({name:req.body.name},function(err,user){
     if(err) throw err;
     if(user){
-      APIWrap(req.body.stock_symbol).then(function(data){
 
-        var newStock={
-          "label":req.body.stock_symbol,
-          "currentCost":data.current,
-          "YesterdayCost":data.yesterday,
-          "NumbersBought":req.body.quantity
-        };
-        user.stocks_purchased.push(newStock);
-        console.log(user.stocks_purchased);
-
-      });
         res.send(user);
     // console. log(user);
 
