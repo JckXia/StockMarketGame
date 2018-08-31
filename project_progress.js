@@ -53,12 +53,14 @@ ELSE return a JSON message in the form
    ]
   }
 To do this, we
-//1. After login creditations came through, we
+//1. After login creditations came through, in the frontend, we make a GET request, for which calculations are done based on existing stocks purchased
+//   their currentcost,as well as yesterday's cost
 //   -Loop through the stocks_purchased array, for Each label we
 //     1. Make request for currentCost of the Stock,set this data as currentCost
 //     2. Make request for YesterdayCost ,set this data as YesterdayCost, update the Database
 //    Return this packaged json back to the User
  Step3:
+Update route??? 
  Frontend:
  Upon reciving of the data, we display it on screen
  When users search for a stock(another API call needed to make a conversion), we make another
@@ -77,13 +79,16 @@ To do this, we
 
 */
 
-
 // Project deadlines
+
 /*
- Tuesday: Complete login module,set up heroku 
+ Tuesday: Complete login module,set up heroku
 Wednesday: Successfully make ajax requests from backend
 Thursday: Implement backend logic
 Friday:  Design UI, make sure everything is in the right place
 Saturday: Link up front and backend
 
 */
+
+//Below is a stock ticker symbol look up service
+  http://d.yimg.com/autoc.finance.yahoo.com/autoc?lang="English"&query=microsoft&callback=YAHOO.Finance.SymbolSuggest.ssCallback
