@@ -96,10 +96,8 @@ var stocks=user.stocks_purchased;
      stocks[i].YesterdayCost=stockData.yesterday;
 
 
-  var latest='stocks_purchased.'+i+'.currentCost';
-  var old='stocks_purchased.'+i+'.yesterdayCost';
-  console.log(latest);
 
+    //Upon recieivng new Data, we updated it and included it in our database
      Ninja.update(
        {_id:user._id},
        {"$set":{'stocks_purchased.$[i].currentCost':stockData.current,'stocks_purchased.$[i].YesterdayCost':stockData.yesterday}},
@@ -109,10 +107,7 @@ var stocks=user.stocks_purchased;
      });
 
      if(pending==0){
-
-
-       //When there is no more in the array
-
+       //When there is no more item in the array
        res.send(user);
 
      }
@@ -134,17 +129,48 @@ router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)
   //res.json({user:req.user})
 });
 
+
+/*
+
+{
+  "name":"Al",
+  "stock_symbol":"AAPL",
+  "quantity":30
+}
+*/
+
 router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),function(req,res){
  Ninja.findOne({name:req.body.name},function(err,user){
     if(err) throw err;
     if(user){
+       console.log(user);
 
-        res.send(user);
-    // console. log(user);
+      APIWrap(req.body.label).then(function(data){
+        var newStockInfo={
+          "label":req.body.label,
+          "currentCost":data.current,
+          "YesterdayCost":data.yesterday,
+          "NumbersBought":req.body.quantity
+        }
+
+      Ninja.update({
+      _id : user._id
+    },{
+      $push: {"stocks_purchased": {label:req.body.label,currentCost:data.current,YesterdayCost:data.yesterday,NumbersBought:req.body.quantity}}
+    }).then(function(ok){
+      console.log(ok);
+    });
+
+
+
+        user.stocks_purchased.push(newStockInfo);
+
+            res.send(user);
+      });
 
     }
   });
-  //res.send('Alright');
+
 });
 
 
