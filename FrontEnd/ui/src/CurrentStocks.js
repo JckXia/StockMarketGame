@@ -19,35 +19,48 @@ class CurrentStocks extends React.Component{
          </div>
         <div className="currentStock">
 
-          <div className="content ticker">GOOGL</div>
-        <div className="content currentPrice">10,000</div>
-      <div className="content lastPrice">9000</div>
-    <div className="content quantity">20</div>
-  <div className="content ChangeInPrice">+ 20</div>
-<img className="content sell" src={sell} />
-<img className="content buy" src={buy}/>
+          <span className="content ticker">GOOGL</span>
+          <span className="content currentPrice">10000</span>
+         <span className="content lastPrice">90000</span>
+         <span className="content quantity">20</span>
+         <span className="content ChangeInPrice">+ 20</span>
+         <span><img className="content sell" src={sell} alt="sell"/></span>
+         <span><img className="content buy" src={buy} alt="buy"/></span>
         </div>
         <div className="currentStock">
 
-          <div className="content ticker">MSFT</div>
-        <div className="content currentPrice">10,000</div>
-      <div className="content lastPrice">9000</div>
-    <div className="content quantity">20</div>
-  <div className="content ChangeInPrice">+ 20</div>
-<img className="content sell" src={sell} />
-<img className="content buy" src={buy}/>
+          <span className="content ticker">K</span>
+          <span className="content currentPrice">10000</span>
+         <span className="content lastPrice">90000</span>
+         <span className="content quantity">20</span>
+         <span className="content ChangeInPrice">+ 20</span>
+         <span><img className="content sell" src={sell} alt="sell"/></span>
+         <span><img className="content buy" src={buy} alt="buy"/></span>
         </div>
         <div className="currentStock">
 
-          <div className="content ticker">APPL</div>
-        <div className="content currentPrice">10,000</div>
-      <div className="content lastPrice">9000</div>
-    <div className="content quantity">20</div>
-  <div className="content ChangeInPrice">+ 20</div>
-<img className="content sell" src={sell} />
-<img className="content buy" src={buy}/>
+          <span className="content ticker">APPL</span>
+          <span className="content currentPrice">10000</span>
+         <span className="content lastPrice">90000</span>
+         <span className="content quantity">20</span>
+         <span className="content ChangeInPrice">+ 20</span>
+         <span><img className="content sell" src={sell} alt="sell"/></span>
+         <span><img className="content buy" src={buy} alt="buy"/></span>
         </div>
-         
+        <div className="currentStock">
+
+          <span className="content ticker">MSFT</span>
+          <span className="content currentPrice">10000</span>
+         <span className="content lastPrice">90000</span>
+         <span className="content quantity">20</span>
+         <span className="content ChangeInPrice">+ 20</span>
+         <span><img className="content sell" src={sell} alt="sell"/></span>
+         <span><img className="content buy" src={buy} alt="buy"/></span>
+        </div>
+
+
+
+
       </div>
       );
   }

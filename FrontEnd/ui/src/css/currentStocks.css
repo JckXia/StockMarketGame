@@ -38,54 +38,54 @@
 /*  Stock CSS*/
 .currentStock{
   display:float;
+  position:static;
   background-color: white;
-
  border: 3px solid #222;
  border-radius:13px;
  padding: 25px;
  margin: 25px;
+ height:20px;
 }
 
 .content{
-  display:inline-block;
+  position:absolute;
+  margin-top:-9px;
 }
-.ticker{
 
-  position:relative;
-  right:36%;
+.ticker{
+  left:5%;
+
   font-size:1em;
 }
 .currentPrice{
-
-  position:relative;
   font-size:1em;
-  right:23%;
+  left:22%;
+
 }
 
 .lastPrice{
 
-  position:relative;
+
   font-size:1em;
-  right:9%;
+  left:40%;
+
 }
 
 .quantity{
 
-  position:relative;
+
   font-size:1em;
-  right:-9%;
+   left:62.5%;
 }
 .ChangeInPrice{
-
-  position:relative;
-  right:-18%;
+  left:73%;
 }
 
 .sell{
   cursor:pointer;
   position:relative;
   height:30px;
-  right:-30%;
+  right:-38%;
 }
 .sell:hover{
 box-shadow: 5px 5px #888888;
@@ -94,7 +94,7 @@ box-shadow: 5px 5px #888888;
    cursor:pointer;
   position:relative;
   height:30px;
-  right:-35%;
+  right:-45%;
 }
 .buy:hover{
   box-shadow:5px 5px #888888;
