@@ -9,7 +9,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
       <span ><span className="credit">Powered By React.js</span><img src={logo} className="App-logo" alt="logo" /></span>
-        <h1 className="App-title">Stock Emulator</h1>
+    <h1 className="App-title">YearOfTheBull</h1>
     </header>
           <SideNav/>
 
