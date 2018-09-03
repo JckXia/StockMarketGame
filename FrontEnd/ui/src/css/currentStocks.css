@@ -1,0 +1,54 @@
+.currentStock{
+  display:float;
+  background-color: white;
+
+ border: 3px solid #222;
+ border-radius:13px;
+ padding: 25px;
+ margin: 25px;
+}
+
+.ticker{
+  display:inline-block;
+  position:relative;
+  right:38%;
+  font-size:1em;
+}
+.currentPrice{
+  display:inline-block;
+  position:relative;
+  font-size:1em;
+  right:23%;
+}
+
+.lastPrice{
+  display:inline-block;
+  position:relative;
+  font-size:1em;
+  right:9%;
+}
+
+.quantity{
+  display:inline-block;
+  position:relative;
+  font-size:1em;
+  right:-9%;
+}
+.ChangeInPrice{
+  display: inline-block;
+  position:relative;
+  right:-18%;
+}
+
+/* Responsive components  */
+@media screen and (max-width:1000px){
+  .ticker{
+    right:32%;
+  }
+}
+
+@media (min-width:700px) and (max-width:9000px){
+    .content{
+      font-size:2em;
+    }
+}

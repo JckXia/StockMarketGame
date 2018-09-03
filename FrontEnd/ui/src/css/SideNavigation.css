@@ -23,6 +23,10 @@
   background: #bdc3c7;
 }
 
+.bm-cross:hover{
+  background:red;
+}
+
 /* General sidebar styles */
 .bm-menu {
   background: #373a47;
