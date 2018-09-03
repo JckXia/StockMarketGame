@@ -8,14 +8,15 @@ class CurrentStocks extends React.Component{
 
       return(
         <div className="container">
+
          <div className="label">
 
-           <div className="lab symbol">Tick
-           </div>
-           <div className="lab price">Current Price</div>
-         <div className="lab Yesterday">Yesterday Close</div>
-       <div className="lab quant">Bought</div>
-     <div className="lab Change">Change</div>
+           <span className="content ticker">Tick</span>
+           <span className="content currentPrice">CurrentPrice</span>
+          <span className="content lastPrice">YesterdayClose</span>
+          <span className="content quantity">Bought</span>
+          <span className="content ChangeInPrice">Change</span>
+
          </div>
         <div className="currentStock">
 

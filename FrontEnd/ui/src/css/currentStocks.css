@@ -1,50 +1,21 @@
 
 
 /* Label CSS*/
-.label{
-
-  position: relative;
-
-  font-size:20px;
-  font-weight:bold;
-}
-.lab{
-  position: relative;
-}
-.symbol{
-
-  right:44%;
-  top:24px;
-}
- .price{
-
-   right:24.5%;
- }
- .Yesterday{
-
-   right:7%;
-   bottom:23px;
- }
- .quant{
-
-   right:-13.3%;
-   bottom:45px;
- }
- .Change{
-
-     right:-25%;
-     top:-68px;
- }
-/*  Stock CSS*/
-.currentStock{
+.label ,.currentStock{
   display:float;
   position:static;
   background-color: white;
- border: 3px solid #222;
- border-radius:13px;
+
  padding: 25px;
  margin: 25px;
  height:20px;
+}
+
+ 
+/*  Stock CSS*/
+.currentStock{
+  border: 3px solid #222;
+  border-radius:13px;
 }
 
 .content{
