@@ -60,7 +60,7 @@ To do this, we
 //     2. Make request for YesterdayCost ,set this data as YesterdayCost, update the Database
 //    Return this packaged json back to the User
  Step3:
-Update route??? 
+Update route???
  Frontend:
  Upon reciving of the data, we display it on screen
  When users search for a stock(another API call needed to make a conversion), we make another
@@ -90,5 +90,12 @@ Saturday: Link up front and backend
 
 */
 
+//Frontend // TODO:
+/*
+ 1. Acquire a list of common NASDAQ/NYSE stock ticker symbol
+ 2. Acquire information onClick of ticker symbol on the side navigation menu
+ 3. Onclick sell/buy options
+ 4. Real Time receiving data on the currentStocks side
+*/
 //Below is a stock ticker symbol look up service
   http://d.yimg.com/autoc.finance.yahoo.com/autoc?lang="English"&query=microsoft&callback=YAHOO.Finance.SymbolSuggest.ssCallback
