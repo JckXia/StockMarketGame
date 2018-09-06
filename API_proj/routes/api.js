@@ -1,6 +1,4 @@
-//var bcrypt=require('bcrypt');
 const express = require ('express');
- //var passwordHash=require('password-hash');
 const router = express.Router();
 var passwordHash = require('password-hash');
 const Ninja = require('../models/ninja');
@@ -9,10 +7,11 @@ const jwt=require('jsonwebtoken');
 const passport=require('passport');
 require('../config/passport')(passport);
 var request=require('request');
-
+ //This project sees the use of the AlphaVantage API
  //BFK2DZWUB5348EUX
-
  //https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=YAHOO&apikey=BFK2DZWUB5348EUX
+
+//The getStringDate function is used to retrieve current time, needed to request stock info
  function getStringDate(aDate,Yesterday){
        var dd = aDate;
        var yy = dd.getYear();
@@ -20,7 +19,7 @@ var request=require('request');
        var hour=dd.getHours();
        var minute=dd.getMinutes();
 
-       //We want the previous day's closing cost
+
         if(Yesterday){
           hour=15;
           minute=59;
@@ -33,10 +32,11 @@ var request=require('request');
        return rs;
    }
 
+
+ /*OHLC calculates the OHLC of the stock info, which is a calculation of the form
+  (low+high+open+close)/4 */
 function OHLC (data){
-
   var res=0;
-
   for(var key in data){
      if(key!=='5. volume'){
      res+= parseFloat(data[key]);
@@ -47,6 +47,8 @@ function OHLC (data){
 }
 
 
+//The AlphaVantage function takes a stockSymbol and return a promise,
+// containing information acquired from the API call
 function AlphaVantage(stockSymbol){
   var current;
   var date=new Date();
@@ -67,15 +69,20 @@ function AlphaVantage(stockSymbol){
     }
   });
 });
-
-
 }
 
+ //APIWrap is an Wrapper, where it acquires data from the AlphaVantage
+ //function, and returns information regarding stocks
 async function APIWrap(stockSymbol){
   let res=await AlphaVantage(stockSymbol);
  return res;
 }
 
+/*
+  AsyncStockHelper takes a user, a response ,it resolves
+  information obtained by the APIWrap function, Updates the mongodb
+  and returns the information back to the Client
+*/
 function AsyncStockHelper(user,res){
 
   var date=new Date();
@@ -84,7 +91,7 @@ function AsyncStockHelper(user,res){
 
 
 var stocks=user.stocks_purchased;
-     var pending=stocks.length;
+var pending=stocks.length;
 
  stocks.forEach(function(item,i){
 
@@ -97,7 +104,7 @@ var stocks=user.stocks_purchased;
 
 
 
-    //Upon recieivng new Data, we updated it and included it in our database
+    //Upon recieivng new Data, we update our database.
      Ninja.update(
        {_id:user._id},
        {"$set":{'stocks_purchased.$[i].currentCost':stockData.current,'stocks_purchased.$[i].YesterdayCost':stockData.yesterday}},
@@ -107,7 +114,8 @@ var stocks=user.stocks_purchased;
      });
 
      if(pending==0){
-       //When there is no more item in the array
+       //When there is no more item in the stocks_purchased array,
+       //return the user
        res.send(user);
 
      }
@@ -115,23 +123,23 @@ var stocks=user.stocks_purchased;
  });
 
 
-  //OHLC average OPEN+HIGH+LOW+CLOSE
-  //console.log(stocks[0].currentCost);
-
-
-
 }
-router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)=>{
-  //This block is part of the calling api iwith node.js business
 
+//Get route, acquiring data with regards to the user. The route is secured
+//by passport-jwt
+router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)=>{
+
+   if(req.user["stocks_purchased"]&&req.user["stocks_purchased"].length>=1){
   AsyncStockHelper(req.user,res);
-//  console.log(req.user.stocks_purchased);
-  //res.json({user:req.user})
+} else{
+  res.send(req.user);
+}
+
 });
 
 
+//Update request examples
 /*
-
 {
   "name":"Al",
   "stock_symbol":"AAPL",
@@ -139,6 +147,7 @@ router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)
 }
 */
 
+//Update route, used to update userInfo,secured with passport-jwt.
 router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),function(req,res){
  Ninja.findOne({name:req.body.name},function(err,user){
     if(err) throw err;
@@ -174,8 +183,9 @@ router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),functio
 });
 
 
-
-//Login route
+//Login route.Here, the password is checked
+//with passwordHash.In addition, a jwt token representing the user
+//is returned to the client,for making GET request.
 router.post('/ninjas/login',function(req,res){
   Ninja.findOne({name:req.body.name},function(err,user){
           if(err) throw err;
@@ -190,8 +200,6 @@ router.post('/ninjas/login',function(req,res){
                      name:user.name
                    }
                  });
-                // const token=jwt.sign(user,'secret');
-
 
                } else{
                  console.log('Test');
@@ -199,7 +207,6 @@ router.post('/ninjas/login',function(req,res){
                }
 
           }else{
-    //User does not exist, return to frontend the information that user DNE
             res.json({success:0,msg:'Wrong username fam'});
           }
   })  ;
@@ -207,10 +214,11 @@ router.post('/ninjas/login',function(req,res){
 });
 
 
- //Register route
+//The register route takes in user name and password, hashes
+//the password and updates the database. Checks are done
+//to ensure that the username has not been registered already
 router.post('/ninjas/register', function(req, res){
-    // console.log("exist")
-    //The below function finds if the user exists in the database
+
 
   Ninja.findOne({name:req.body.name},function(err,user){
           if(err) throw err;
@@ -223,9 +231,7 @@ router.post('/ninjas/register', function(req, res){
 
         req.body.password=passwordHash.generate(req.body.password);
         console.log(req.body.password);
-            //  console.log("password "+req.body.password);
               Ninja.create(req.body).then(function(ninja){
-                  // console.log(req.body.rank);
                            res.json(ninja);
 
               });
@@ -237,26 +243,7 @@ router.post('/ninjas/register', function(req, res){
 });
 
 
-
-// update route
-router.put('/ninjas/:id', function(req, res, next){
-
-    Ninja.findOneAndUpdate({name: req.params.id}, req.body.age).then(function(){
-
-        Ninja.findOne({name: req.params.id}).then(function(ninja){
-
-            res.send(ninja);
-
-        });
-
-    }).catch(next);
-
-});
-
-//
-
-
-//Delete route
+//Delete route(future updates)
 router.delete('/ninjas/:id', function(req, res){
 
     Ninja.findByIdAndRemove({_id:req.params.id}).then(function(ninja){
