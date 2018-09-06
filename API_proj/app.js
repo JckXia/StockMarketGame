@@ -28,7 +28,7 @@ app.use(routes);
 //listen for requests
 var port=process.env.PORT||3000;
 app.listen(port,function(){
-  console.log("Now listening for requests on port 3000");
+  console.log("Now listening for requests on port "+port);
 });
 
 //Get route
