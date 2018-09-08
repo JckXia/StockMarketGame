@@ -49,29 +49,27 @@ function OHLC (data){
 
 //The AlphaVantage function takes a stockSymbol and return a promise,
 // containing information acquired from the API call
-//NOTE:Issue with API: As of current due to limit of API, only 5 stocks can be
- // puchased by an individual
- function AlphaVantage(stockSymbol){
-   var current;
-   var date=new Date();
-    var Yesterday=getStringDate(date,1);
-  return new Promise( function(resolve,reject){
-   request.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+stockSymbol+'&outputsize=full&interval=1min&apikey=BFK2DZWUB5348EUX', function (error, response, body) {
-     if (!error && response.statusCode == 200) {
+function AlphaVantage(stockSymbol){
+  var current;
+  var date=new Date();
+   var Yesterday=getStringDate(date,1);
+ return new Promise( function(resolve,reject){
+  request.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+stockSymbol+'&outputsize=full&interval=1min&apikey=BFK2DZWUB5348EUX', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
 
-       let data=JSON.parse(body);
+      let data=JSON.parse(body);
 
-       var LastRefresh=data['Meta Data']['3. Last Refreshed'];
-       var YesterdayData=OHLC(data['Time Series (1min)'][Yesterday]);
-       var latestData=OHLC(data['Time Series (1min)'][LastRefresh]);
+      var LastRefresh=data['Meta Data']['3. Last Refreshed'];
+      var YesterdayData=OHLC(data['Time Series (1min)'][Yesterday]);
+      var latestData=OHLC(data['Time Series (1min)'][LastRefresh]);
 
-     resolve({"current":latestData,"yesterday":YesterdayData});
-     }else{
-       reject(error);
-     }
-   });
- });
- }
+    resolve({"current":latestData,"yesterday":YesterdayData});
+    }else{
+      reject(error);
+    }
+  });
+});
+}
 
  //APIWrap is an Wrapper, where it acquires data from the AlphaVantage
  //function, and returns information regarding stocks
@@ -150,31 +148,27 @@ router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)
 */
 
 //Update route, used to update userInfo,secured with passport-jwt.
-//TODO: Check if stock has already been bought
 router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),function(req,res){
  Ninja.findOne({name:req.body.name},function(err,user){
     if(err) throw err;
     if(user){
-
-       var stocks=user["stocks_purchased"];
+       console.log(user);
+       var stocks=user.stocks_purchased;
        var tick=req.body.label;
-
        for(var i=0;i<stocks.length;i++){
           if(stocks[i].label==tick){
-             stocks[i].NumbersBought+=req.body.quantity;
 
-            Ninja.update(
-               {_id:user._id},
-               {"$set":{'stocks_purchased.$[i].NumbersBought':stocks[i]}},
-               {arrayFilters: [{"i.label": stocks[i].label}]}
-             ).then(function(user){
+                console.log(tick);
+                stocks[i].NumbersBought+=req.body.quantity;
+                Ninja.update(
+                  {_id:user._id},
+                  {"$set":{'stocks_purchased.$[i].NumbersBought':stocks[i].NumbersBought}},
+                  {arrayFilters: [{"i.label": tick}]}
+                ).then(function(user){
 
-             });
-
-
-
-            res.send(user);
-            return;
+                });
+                res.send(user);
+              return;
           }
        }
 
@@ -185,7 +179,6 @@ router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),functio
           "YesterdayCost":data.yesterday,
           "NumbersBought":req.body.quantity
         }
-
       Ninja.update({
       _id : user._id
     },{
