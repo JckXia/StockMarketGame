@@ -7,6 +7,8 @@ const jwt=require('jsonwebtoken');
 const passport=require('passport');
 require('../config/passport')(passport);
 var request=require('request');
+
+var cache=[];
  //This project sees the use of the AlphaVantage API
  //BFK2DZWUB5348EUX
  //https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=YAHOO&apikey=BFK2DZWUB5348EUX
@@ -58,12 +60,53 @@ function AlphaVantage(stockSymbol){
     if (!error && response.statusCode == 200) {
 
       let data=JSON.parse(body);
+      if(!data['Meta Data']){
+        console.log('Reading from cache');
+        console.log(stockSymbol);
+        //If we have exceeded our data limit, we need to use our cache, which is in this form
+        // [{"tick":GOOGL,"current":1000,"yesterday":200},{"tick":MSFT,"curret":10,"yesterday":50}]
+        // We loop through cache, until we have found the stock symbol, then set the
+        // variabels latestData and YesterdayData and resolve it
+          var YesterdayData;
+          var latestData;
+         for(var i=0;i<cache.length;i++){
+           if(cache[i].tick==stockSymbol){
+
+             YesterdayData=cache[i].yesterday;
+
+              latestData=cache[i].current;
+              break;
+
+
+           }
+         }
+           resolve({"current":latestData,"yesterday":YesterdayData});
+
+      } else{
+        console.log('Hit');
 
       var LastRefresh=data['Meta Data']['3. Last Refreshed'];
       var YesterdayData=OHLC(data['Time Series (1min)'][Yesterday]);
       var latestData=OHLC(data['Time Series (1min)'][LastRefresh]);
-
+        //Here, we need to check, if the tickerre exists in the cache
+        var flag=1;
+        //Here, if AlphaVantage API became active again, we update the cache
+        //info
+      for(var i=0;i<cache.length;i++){
+        if(cache[i].tick==stockSymbol){
+           cache[i].current=latestData;
+           cache[i].yesterday=YesterdayData;
+           flag=0;
+        }
+      }
+      //We push if and only if the tick has never been bought by the user 
+      if(flag){
+        cache.push({"tick":stockSymbol,"current":latestData,"yesterday":YesterdayData});
+      }
+    //cache.push({"tick":stockSymbol,"current":latestData,"yesterday":YesterdayData}
     resolve({"current":latestData,"yesterday":YesterdayData});
+  }
+
     }else{
       reject(error);
     }
