@@ -87,6 +87,7 @@ function AlphaVantage(stockSymbol){
 
       var LastRefresh=data['Meta Data']['3. Last Refreshed'];
       var YesterdayData=OHLC(data['Time Series (1min)'][Yesterday]);
+        console.log(Yesterday);
       var latestData=OHLC(data['Time Series (1min)'][LastRefresh]);
         //Here, we need to check, if the tickerre exists in the cache
         var flag=1;
@@ -99,7 +100,7 @@ function AlphaVantage(stockSymbol){
            flag=0;
         }
       }
-      //We push if and only if the tick has never been bought by the user 
+      //We push if and only if the tick has never been bought by the user
       if(flag){
         cache.push({"tick":stockSymbol,"current":latestData,"yesterday":YesterdayData});
       }
@@ -192,7 +193,7 @@ router.get('/ninjas',passport.authenticate('jwt',{session:false}),(req,res,next)
 
 //Update route, used to update userInfo,secured with passport-jwt.
 router.put('/ninjas/update',passport.authenticate('jwt',{session:false}),function(req,res){
- Ninja.findOne({name:req.body.name},function(err,user){
+ Ninja.findOne({name:req.user.name},function(err,user){
     if(err) throw err;
     if(user){
        console.log(user);
@@ -267,7 +268,7 @@ router.post('/ninjas/login',function(req,res){
                }
 
           }else{
-            res.json({success:0,msg:'Wrong username fam'});
+            res.json({success:0,msg:'User not found man'});
           }
   })  ;
 
@@ -302,13 +303,26 @@ router.post('/ninjas/register', function(req, res){
 
 });
 
+//Delete route for removing stock entries
+router.delete('/ninjas/delete',passport.authenticate('jwt',{session:false}), function(req, res){
 
-//Delete route(future updates)
-router.delete('/ninjas/:id', function(req, res){
+   Ninja.findOne({name:req.user.name},function(err,user){
+      if(err) throw err;
+      if(user){
+        Ninja.update({
+        _id : user._id
+      },{
+        $pull: {"stocks_purchased": {label:req.body.label}}
+      }).then(function(ok){
+        console.log(ok);
+      });
+        res.send({success:1});
+        return;
+      }else{
+        res.send({success:0});
+      }
+   });
 
-    Ninja.findByIdAndRemove({_id:req.params.id}).then(function(ninja){
-      res.send(ninja);
-    });
   //  res.send({type: 'DELETE'});
 
 });
